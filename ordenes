@@ -1,0 +1,34 @@
+exit
+
+cd /home/prosich@upvnet.upv.es/src/kpru
+
+helm repo add metallb https://metallb.github.io/metallb
+helm repo add traefik https://helm.traefik.io/traefik
+helm repo update
+
+kubectl create namespace balances
+kubectl create namespace ingresos
+
+helm    install   metalero    -n balances metallb/metallb
+helm    install   traficante2 -n ingresos traefik/traefik
+
+kubectl patch svc traficante1-traefik -n ingresos \
+  -p '{"metadata":{"annotations":{"metallb.universe.tf/loadBalancerIPs":"158.42.9.233"}}}'
+
+kubectl create -f whoami-deployment.yaml
+kubectl create -f whoami-service.yaml
+kubectl create -f whoami-ingress.yaml
+
+kubectl delete ingress    whoami-ingress
+kubectl delete service    whoami-service
+kubectl delete deployment whoami-deployment
+
+helm delete -n ingresos traficante1
+helm delete -n balances metalero
+
+kubectl delete namespace ingresos
+kubectl delete namespace balances
+
+helm repo remove traefik
+helm repo remove metallb
+

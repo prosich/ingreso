@@ -1,0 +1,20 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ippool1
+  namespace: balances
+spec:
+  addresses:
+  - 158.42.9.233/32
+  - 158.42.9.234/32
+  - 158.42.9.235/32
+  - 158.42.9.236/32
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: pool1-ad
+  namespace: balances
+spec:
+  ipAddressPools:
+  - ippool1
