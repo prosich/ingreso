@@ -12,34 +12,35 @@ kubectl create namespace balances
 kubectl create namespace ingresos
 
 helm    install   metalero    -n balances metallb/metallb
-helm    install   traficante1 -n ingresos traefik/traefik
-helm    install   traficante2 -n ingresos traefik/traefik
+kubectl apply -f mlb.yaml
 
+helm    install   traficante1 -n ingresos traefik/traefik
 kubectl patch svc traficante1-traefik -n ingresos \
   -p '{"metadata":{"annotations":{"metallb.universe.tf/loadBalancerIPs":"158.42.9.233"}}}'
 
 # opcional:
-kubectl patch svc traficante2-traefik -n ingresos \
-  -p '{"metadata":{"annotations":{"metallb.universe.tf/loadBalancerIPs":"158.42.9.234"}}}'
-# Nota: la razon de crear este segundo ingress controller es pedagogica, 
-# para poder observar desde alguna maquina en VLAN9 que nodo es el que responde 
-# al ARP para cada ingress controller.
+#helm    install   traficante2 -n ingresos traefik/traefik
+#kubectl patch svc traficante2-traefik -n ingresos \
+#  -p '{"metadata":{"annotations":{"metallb.universe.tf/loadBalancerIPs":"158.42.9.234"}}}'
+# Nota: la razon de crear este segundo ingress controller es pedagógica, 
+# para poder observar desde alguna maquina en VLAN9 qué nodo es el que 
+# responde al ARP para cada ingress controller.
 
 # prosich:
 
 kubectl create -f whoami-deployment.yaml
 kubectl create -f whoami-service.yaml
 kubectl create -f whoami-ingress1.yaml
-kubectl create -f whoami-ingress2.yaml
+#kubectl create -f whoami-ingress2.yaml
 
-kubectl delete ingress    whoami-ingress2
+#kubectl delete ingress    whoami-ingress2
 kubectl delete ingress    whoami-ingress1
 kubectl delete service    whoami-service
 kubectl delete deployment whoami-deployment
 
 # root:
 
-helm delete -n ingresos traficante2
+#helm delete -n ingresos traficante2
 helm delete -n ingresos traficante1
 helm delete -n balances metalero
 
